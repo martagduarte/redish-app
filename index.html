@@ -1,0 +1,597 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --green:#1D9E75;--green-light:#E1F5EE;--green-mid:#5DCAA5;--green-dark:#085041;
+    --amber:#BA7517;--amber-light:#FAEEDA;--amber-mid:#EF9F27;
+    --coral:#D85A30;--coral-light:#FAECE7;
+    --gray:#888780;--gray-light:#F1EFE8;--gray-dark:#2C2C2A;
+    --bg:#FAFAF8;--white:#ffffff;--border:rgba(0,0,0,0.09);
+    --text:#1a1a18;--muted:#6b6b67;
+    --radius:14px;--radius-sm:8px;
+    --font-main:'DM Sans',sans-serif;--font-display:'Fraunces',serif;
+  }
+  body{font-family:var(--font-main);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  
+  /* NAV */
+  .topbar{background:var(--white);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .logo{font-family:var(--font-display);font-size:22px;color:var(--green-dark);font-weight:600;letter-spacing:-0.5px}
+  .logo span{color:var(--green);font-style:italic}
+  .nav-icons{display:flex;gap:6px}
+  .nav-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:var(--radius-sm);color:var(--muted);font-size:18px;transition:background 0.15s,color 0.15s}
+  .nav-btn:hover,.nav-btn.active{background:var(--green-light);color:var(--green-dark)}
+  .badge-dot{position:relative}
+  .badge-dot::after{content:'';position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--coral);border-radius:50%;border:2px solid var(--white)}
+
+  /* TABS */
+  .tab-bar{display:flex;gap:0;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .tab-bar::-webkit-scrollbar{display:none}
+  .tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s}
+  .tab.active{color:var(--green-dark);border-bottom-color:var(--green)}
+
+  /* SCREENS */
+  .screen{display:none;padding:20px;max-width:480px;margin:0 auto;padding-bottom:80px}
+  .screen.active{display:block}
+
+  /* SEARCH */
+  .search-bar{background:var(--white);border:1px solid var(--border);border-radius:40px;padding:11px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .search-bar input{border:none;outline:none;flex:1;font-family:var(--font-main);font-size:14px;background:none;color:var(--text)}
+  .search-bar i{color:var(--muted);font-size:16px}
+
+  /* FILTER CHIPS */
+  .chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:20px;padding-bottom:2px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--muted);transition:all 0.15s}
+  .chip.active{background:var(--green-dark);color:var(--white);border-color:var(--green-dark)}
+
+  /* SECTION TITLE */
+  .section-title{font-family:var(--font-display);font-size:19px;font-weight:600;margin-bottom:14px;color:var(--text)}
+  .section-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+
+  /* OFFER CARDS */
+  .offer-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;overflow:hidden;cursor:pointer;transition:transform 0.12s,box-shadow 0.12s}
+  .offer-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.07)}
+  .card-header{background:var(--green-light);padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start}
+  .card-header.bakery{background:#FFF8ED}
+  .card-header.sushi{background:#F0F4FF}
+  .card-header.cafe{background:#FFF0F0}
+  .store-name{font-weight:600;font-size:15px;color:var(--text);margin-bottom:2px}
+  .store-type{font-size:12px;color:var(--muted)}
+  .price-block{text-align:right}
+  .price-new{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--green-dark)}
+  .price-old{font-size:12px;color:var(--muted);text-decoration:line-through}
+  .discount-badge{background:var(--green-dark);color:white;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;display:inline-block;margin-top:3px}
+  .card-body{padding:14px 18px}
+  .card-desc{font-size:14px;color:var(--text);margin-bottom:10px;line-height:1.5}
+  .card-meta{display:flex;gap:14px;align-items:center}
+  .meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+  .meta-item i{font-size:13px}
+  .urgency{color:var(--coral);font-weight:500}
+
+  /* DETAIL VIEW */
+  .detail-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .back-btn{background:none;border:1px solid var(--border);padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--muted);font-family:var(--font-main);display:flex;align-items:center;gap:6px}
+  .back-btn:hover{background:var(--gray-light)}
+  .detail-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+  .detail-img{background:linear-gradient(135deg,var(--green-light),#d0f0e3);height:160px;display:flex;align-items:center;justify-content:center;font-size:64px}
+  .detail-info{padding:18px}
+  .detail-name{font-family:var(--font-display);font-size:22px;font-weight:600;margin-bottom:6px}
+  .detail-shop{font-size:14px;color:var(--muted);margin-bottom:14px}
+  .price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+  .price-big{font-family:var(--font-display);font-size:32px;font-weight:600;color:var(--green-dark)}
+  .price-was{font-size:16px;color:var(--muted);text-decoration:line-through}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .info-box{background:var(--bg);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border)}
+  .info-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px}
+  .info-value{font-size:14px;font-weight:500;color:var(--text)}
+  .allergen-row{margin-bottom:16px}
+  .allergen-title{font-size:13px;font-weight:500;margin-bottom:8px}
+  .allergen-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .allergen-chip{background:var(--amber-light);color:var(--amber);font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px}
+  .reserve-btn{width:100%;background:var(--green-dark);color:white;border:none;border-radius:var(--radius);padding:16px;font-family:var(--font-main);font-size:15px;font-weight:500;cursor:pointer;transition:background 0.15s}
+  .reserve-btn:hover{background:var(--green)}
+
+  /* CART */
+  .cart-empty{text-align:center;padding:40px 20px;color:var(--muted)}
+  .cart-empty i{font-size:48px;margin-bottom:16px;display:block;opacity:0.3}
+  .cart-item{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px}
+  .cart-item-info{flex:1}
+  .cart-item-name{font-weight:500;font-size:14px;margin-bottom:3px}
+  .cart-item-shop{font-size:12px;color:var(--muted)}
+  .cart-item-price{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--green-dark)}
+  .remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px}
+  .remove-btn:hover{color:var(--coral)}
+  .cart-total{background:var(--green-light);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
+  .total-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
+  .total-row.final{font-weight:600;font-size:16px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);margin-top:4px}
+  .total-row.final .total-val{font-family:var(--font-display);font-size:20px;color:var(--green-dark)}
+  .pay-btn{width:100%;background:var(--green-dark);color:white;border:none;border-radius:var(--radius);padding:16px;font-family:var(--font-main);font-size:15px;font-weight:500;cursor:pointer;transition:background 0.15s;margin-bottom:10px}
+  .pay-btn:hover{background:var(--green)}
+
+  /* QR MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+  .modal-overlay.active{display:flex}
+  .modal{background:var(--white);border-radius:20px;padding:28px;max-width:320px;width:90%;text-align:center}
+  .qr-box{width:160px;height:160px;margin:0 auto 16px;border:2px dashed var(--green-mid);border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--green-light);position:relative;overflow:hidden}
+  .qr-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:8px;width:100%}
+  .qr-cell{aspect-ratio:1;border-radius:1px}
+  .modal-title{font-family:var(--font-display);font-size:20px;font-weight:600;margin-bottom:8px}
+  .modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+  .code-display{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 16px;font-family:monospace;font-size:16px;font-weight:600;letter-spacing:3px;color:var(--green-dark);margin-bottom:20px}
+  .modal-close{width:100%;background:var(--gray-light);color:var(--text);border:none;border-radius:var(--radius-sm);padding:12px;font-family:var(--font-main);font-size:14px;cursor:pointer}
+
+  /* IMPACT */
+  .impact-hero{background:var(--green-dark);color:white;border-radius:var(--radius);padding:24px;margin-bottom:16px;text-align:center}
+  .impact-hero .stat{font-family:var(--font-display);font-size:48px;font-weight:600;margin:8px 0;color:var(--green-mid)}
+  .impact-hero .label{font-size:13px;opacity:0.7}
+  .impact-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .impact-card{background:var(--white);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px;text-align:center}
+  .impact-card .num{font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--green-dark)}
+  .impact-card .desc{font-size:12px;color:var(--muted);margin-top:4px}
+  .level-bar{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:14px}
+  .level-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+  .level-label span:first-child{font-weight:500}
+  .progress-bg{background:var(--gray-light);border-radius:10px;height:10px;overflow:hidden}
+  .progress-fill{background:var(--green-mid);border-radius:10px;height:100%;transition:width 1s ease}
+
+  /* NOTIFICATION BANNER */
+  .notif-banner{background:var(--green-dark);color:white;border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;animation:slideIn 0.4s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  .notif-icon{font-size:20px;opacity:0.85}
+  .notif-text{flex:1;font-size:13px;line-height:1.4}
+  .notif-text strong{display:block;font-size:14px;margin-bottom:2px}
+  .notif-close{background:none;border:none;color:white;opacity:0.6;cursor:pointer;font-size:16px}
+
+  /* BOTTOM NAV */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:100}
+  .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font-main);transition:color 0.15s;position:relative}
+  .bnav-btn i{font-size:22px}
+  .bnav-btn.active{color:var(--green-dark)}
+  .cart-count{position:absolute;top:6px;right:calc(50% - 18px);background:var(--coral);color:white;font-size:9px;font-weight:600;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+  /* PROFILE */
+  .profile-header{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:20px;display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .avatar{width:52px;height:52px;border-radius:50%;background:var(--green-mid);color:white;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:20px;font-weight:600}
+  .profile-pref-section{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:18px;margin-bottom:14px}
+  .pref-title{font-size:13px;font-weight:500;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px}
+  .pref-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .pref-chip{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all 0.15s}
+  .pref-chip.selected{background:var(--green-dark);color:white;border-color:var(--green-dark)}
+  .pref-chip.allergy{border-color:var(--amber-light);background:var(--amber-light);color:var(--amber)}
+  .pref-chip.allergy.selected{background:var(--amber);color:white;border-color:var(--amber)}
+  .save-pref-btn{width:100%;background:var(--green-dark);color:white;border:none;border-radius:var(--radius);padding:14px;font-family:var(--font-main);font-size:14px;font-weight:500;cursor:pointer;margin-top:4px}
+
+  /* HISTORY */
+  .history-item{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+  .history-icon{width:42px;height:42px;border-radius:10px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--green-dark);flex-shrink:0}
+  .history-info{flex:1}
+  .history-name{font-weight:500;font-size:14px;margin-bottom:2px}
+  .history-date{font-size:12px;color:var(--muted)}
+  .history-right{text-align:right}
+  .history-price{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--green-dark)}
+  .status-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px}
+  .status-badge.done{background:var(--green-light);color:var(--green-dark)}
+  .status-badge.pending{background:var(--amber-light);color:var(--amber)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gray-dark);color:white;padding:10px 18px;border-radius:30px;font-size:13px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Re<span>Dish</span></div>
+  <div class="nav-icons">
+    <button class="nav-btn badge-dot" onclick="showNotif()" title="Notificações"><i class="ti ti-bell" aria-hidden="true"></i></button>
+    <button class="nav-btn" onclick="showScreen('profile')" title="Perfil"><i class="ti ti-user-circle" aria-hidden="true"></i></button>
+  </div>
+</div>
+
+<!-- MAIN SCREENS -->
+<div id="screen-home" class="screen active">
+  <div id="geofence-notif" style="display:none"></div>
+  
+  <div class="search-bar">
+    <i class="ti ti-search" aria-hidden="true"></i>
+    <input type="text" placeholder="Pesquisar restaurante, prato..." id="search-input" oninput="filterOffers()">
+    <i class="ti ti-adjustments-horizontal" aria-hidden="true" style="cursor:pointer" onclick=""></i>
+  </div>
+
+  <div class="chips" id="filter-chips">
+    <div class="chip active" onclick="setFilter(this,'all')">Todos</div>
+    <div class="chip" onclick="setFilter(this,'Padaria')">Padaria</div>
+    <div class="chip" onclick="setFilter(this,'Restaurante')">Restaurante</div>
+    <div class="chip" onclick="setFilter(this,'Café')">Café</div>
+    <div class="chip" onclick="setFilter(this,'Sushi')">Sushi</div>
+  </div>
+
+  <p class="section-title">Perto de ti 🌿</p>
+  <div id="offers-list"></div>
+</div>
+
+<div id="screen-detail" class="screen">
+  <div class="detail-header">
+    <button class="back-btn" onclick="showScreen('home')"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+  </div>
+  <div id="detail-content"></div>
+</div>
+
+<div id="screen-cart" class="screen">
+  <p class="section-title">Carrinho 🛒</p>
+  <div id="cart-content"></div>
+</div>
+
+<div id="screen-impact" class="screen">
+  <p class="section-title">O teu impacto 🌍</p>
+  
+  <div class="notif-banner" id="impact-notif" style="display:none">
+    <i class="ti ti-bell-ringing notif-icon" aria-hidden="true"></i>
+    <div class="notif-text"><strong>Nova oferta perto de ti!</strong>Padaria Central tem 3 croissants disponíveis a 200m</div>
+    <button class="notif-close" onclick="this.parentElement.style.display='none'">✕</button>
+  </div>
+
+  <div class="impact-hero">
+    <div class="label">CO₂ poupado este mês</div>
+    <div class="stat" id="co2-stat">2.4 kg</div>
+    <div class="label">Equivale a 12 km de carro evitados</div>
+  </div>
+
+  <div class="impact-cards">
+    <div class="impact-card">
+      <div class="num" id="meals-count">7</div>
+      <div class="desc">refeições salvas</div>
+    </div>
+    <div class="impact-card">
+      <div class="num" id="money-saved">18,40€</div>
+      <div class="desc">poupados</div>
+    </div>
+    <div class="impact-card">
+      <div class="num">3</div>
+      <div class="desc">parceiros diferentes</div>
+    </div>
+    <div class="impact-card">
+      <div class="num">🌱 12</div>
+      <div class="desc">pontos eco-guerreiro</div>
+    </div>
+  </div>
+
+  <div class="level-bar">
+    <div class="level-label"><span>Nível: Eco-Guerreiro 🌿</span><span style="color:var(--muted)">12 / 20 pontos</span></div>
+    <div class="progress-bg"><div class="progress-fill" id="xp-bar" style="width:60%"></div></div>
+  </div>
+
+  <div id="history-list"></div>
+</div>
+
+<div id="screen-profile" class="screen">
+  <p class="section-title">O meu perfil</p>
+  
+  <div class="profile-header">
+    <div class="avatar">J</div>
+    <div>
+      <div style="font-weight:600;font-size:16px">João Silva</div>
+      <div style="font-size:13px;color:var(--muted)">joao.silva@ua.pt</div>
+    </div>
+  </div>
+
+  <div class="profile-pref-section">
+    <div class="pref-title">Categorias de interesse</div>
+    <div class="pref-chips" id="pref-cats">
+      <div class="pref-chip selected" onclick="togglePref(this)">Padaria</div>
+      <div class="pref-chip selected" onclick="togglePref(this)">Refeições Prontas</div>
+      <div class="pref-chip" onclick="togglePref(this)">Sushi</div>
+      <div class="pref-chip" onclick="togglePref(this)">Café</div>
+      <div class="pref-chip" onclick="togglePref(this)">Saladas</div>
+      <div class="pref-chip" onclick="togglePref(this)">Sobremesas</div>
+    </div>
+  </div>
+
+  <div class="profile-pref-section">
+    <div class="pref-title">Restrições alimentares</div>
+    <div class="pref-chips" id="pref-allergies">
+      <div class="pref-chip allergy" onclick="togglePref(this)">Glúten</div>
+      <div class="pref-chip allergy selected" onclick="togglePref(this)">Lactose</div>
+      <div class="pref-chip allergy" onclick="togglePref(this)">Frutos secos</div>
+      <div class="pref-chip allergy" onclick="togglePref(this)">Marisco</div>
+      <div class="pref-chip allergy" onclick="togglePref(this)">Ovos</div>
+    </div>
+  </div>
+
+  <button class="save-pref-btn" onclick="savePrefs()">Guardar preferências</button>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal">
+    <div class="qr-box" id="qr-container"></div>
+    <div class="modal-title">Reserva confirmada! 🎉</div>
+    <div class="modal-sub">Apresenta este código ao estabelecimento no momento do levantamento.</div>
+    <div class="code-display" id="qr-code">RD-2847-X</div>
+    <button class="modal-close" onclick="document.getElementById('qr-modal').classList.remove('active');resetCart()">Fechar</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <button class="bnav-btn active" id="bnav-home" onclick="showScreen('home')">
+    <i class="ti ti-home" aria-hidden="true"></i>Início
+  </button>
+  <button class="bnav-btn" id="bnav-cart" onclick="showScreen('cart')">
+    <i class="ti ti-shopping-bag" aria-hidden="true"></i>Carrinho
+    <span class="cart-count" id="cart-badge" style="display:none">0</span>
+  </button>
+  <button class="bnav-btn" id="bnav-impact" onclick="showScreen('impact')">
+    <i class="ti ti-leaf" aria-hidden="true"></i>Impacto
+  </button>
+  <button class="bnav-btn" id="bnav-profile" onclick="showScreen('profile')">
+    <i class="ti ti-user" aria-hidden="true"></i>Perfil
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const offers = [
+  {id:1,name:"Croissants & Brioches",shop:"Padaria Central",type:"Padaria",desc:"5 croissants de manteiga e 2 brioches de chocolate. Frescos do dia, assados esta manhã.",price:2.80,oldPrice:7.50,discount:"63%",dist:"180m",cutoff:"21:00",stock:3,allergens:["Glúten","Lactose","Ovos"],emoji:"🥐",headerClass:"bakery"},
+  {id:2,name:"Box Bento Salmão",shop:"Sushi Garden",type:"Sushi",desc:"Bento com 8 peças de salmão nigiri, edamame e salada. Preparado hoje ao almoço.",price:5.90,oldPrice:13.50,discount:"56%",dist:"340m",cutoff:"21:30",stock:2,allergens:["Peixe","Glúten","Soja"],emoji:"🍱",headerClass:"sushi"},
+  {id:3,name:"Menu Almoço Completo",shop:"Tasca do Zé",type:"Restaurante",desc:"Sopa de legumes + Bacalhau à Brás + sobremesa do dia. Dose generosa.",price:4.20,oldPrice:9.90,discount:"58%",dist:"520m",cutoff:"15:30",stock:1,allergens:["Peixe","Ovos"],emoji:"🍲",headerClass:""},
+  {id:4,name:"Sandes Variadas",shop:"Café Lisboa",type:"Café",desc:"Lote com 4 sandes mistas (queijo, fiambre, atum). Pão fresco de hoje.",price:3.00,oldPrice:8.00,discount:"63%",dist:"90m",cutoff:"19:00",stock:5,allergens:["Glúten","Lactose"],emoji:"🥪",headerClass:"cafe"},
+  {id:5,name:"Pão & Pastelaria",shop:"Padaria Central",type:"Padaria",desc:"Sortido com pão de mistura, queques e bolos do dia. Aprox. 800g.",price:1.80,oldPrice:5.50,discount:"67%",dist:"180m",cutoff:"21:00",stock:4,allergens:["Glúten","Lactose"],emoji:"🍞",headerClass:"bakery"},
+];
+
+let cart = [];
+let activeFilter = 'all';
+let searchTerm = '';
+
+function renderOffers() {
+  const list = document.getElementById('offers-list');
+  let filtered = offers.filter(o => {
+    const matchFilter = activeFilter === 'all' || o.type === activeFilter;
+    const matchSearch = !searchTerm || o.name.toLowerCase().includes(searchTerm.toLowerCase()) || o.shop.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><i class="ti ti-mood-sad" style="font-size:40px;display:block;margin-bottom:12px;opacity:0.3"></i>Sem ofertas disponíveis.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(o => `
+    <div class="offer-card" onclick="showDetail(${o.id})">
+      <div class="card-header ${o.headerClass}">
+        <div>
+          <div class="store-name">${o.emoji} ${o.shop}</div>
+          <div class="store-type">${o.type}</div>
+        </div>
+        <div class="price-block">
+          <div class="price-new">${o.price.toFixed(2)}€</div>
+          <div class="price-old">${o.oldPrice.toFixed(2)}€</div>
+          <div class="discount-badge">-${o.discount}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-desc">${o.name}</div>
+        <div class="card-meta">
+          <span class="meta-item"><i class="ti ti-map-pin" aria-hidden="true"></i>${o.dist}</span>
+          <span class="meta-item urgency"><i class="ti ti-clock" aria-hidden="true"></i>até ${o.cutoff}</span>
+          <span class="meta-item"><i class="ti ti-package" aria-hidden="true"></i>${o.stock} disponíveis</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(el, val) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter = val;
+  renderOffers();
+}
+
+function filterOffers() {
+  searchTerm = document.getElementById('search-input').value;
+  renderOffers();
+}
+
+function showDetail(id) {
+  const o = offers.find(x => x.id === id);
+  if (!o) return;
+  const inCart = cart.find(c => c.id === id);
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-card">
+      <div class="detail-img">${o.emoji}</div>
+      <div class="detail-info">
+        <div class="detail-name">${o.name}</div>
+        <div class="detail-shop"><i class="ti ti-building-store" aria-hidden="true" style="margin-right:4px"></i>${o.shop} · ${o.dist} de distância</div>
+        <div class="price-row">
+          <div class="price-big">${o.price.toFixed(2)}€</div>
+          <div class="price-was">${o.oldPrice.toFixed(2)}€</div>
+          <div class="discount-badge" style="font-size:12px;padding:4px 10px">-${o.discount}</div>
+        </div>
+        <div class="info-grid">
+          <div class="info-box">
+            <div class="info-label">Hora limite</div>
+            <div class="info-value" style="color:var(--coral)"><i class="ti ti-clock" aria-hidden="true"></i> ${o.cutoff}</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">Disponível</div>
+            <div class="info-value">${o.stock} unidades</div>
+          </div>
+          <div class="info-box" style="grid-column:1/-1">
+            <div class="info-label">Descrição</div>
+            <div class="info-value" style="font-weight:400;font-size:13px;line-height:1.5">${o.desc}</div>
+          </div>
+        </div>
+        <div class="allergen-row">
+          <div class="allergen-title">⚠️ Alergénios</div>
+          <div class="allergen-chips">${o.allergens.map(a => `<span class="allergen-chip">${a}</span>`).join('')}</div>
+        </div>
+        <button class="reserve-btn" onclick="addToCart(${o.id})" id="reserve-btn-${o.id}">${inCart ? '✓ Adicionado ao carrinho' : 'Reservar · ' + o.price.toFixed(2) + '€'}</button>
+      </div>
+    </div>
+  `;
+  showScreen('detail');
+}
+
+function addToCart(id) {
+  const o = offers.find(x => x.id === id);
+  if (!o) return;
+  if (cart.find(c => c.id === id)) {
+    showToast('Já está no carrinho!');
+    return;
+  }
+  cart.push({...o});
+  updateCartBadge();
+  showToast('Adicionado ao carrinho 🛒');
+  const btn = document.getElementById('reserve-btn-' + id);
+  if (btn) btn.textContent = '✓ Adicionado ao carrinho';
+  updateImpact();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  updateCartBadge();
+  renderCart();
+}
+
+function updateCartBadge() {
+  const badge = document.getElementById('cart-badge');
+  if (cart.length > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = cart.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderCart() {
+  const el = document.getElementById('cart-content');
+  if (!cart.length) {
+    el.innerHTML = '<div class="cart-empty"><i class="ti ti-shopping-bag" aria-hidden="true"></i><p>O teu carrinho está vazio.<br>Explora as ofertas disponíveis!</p></div>';
+    return;
+  }
+  const subtotal = cart.reduce((s, i) => s + i.price, 0);
+  const savings = cart.reduce((s, i) => s + (i.oldPrice - i.price), 0);
+  el.innerHTML = cart.map(i => `
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${i.emoji} ${i.name}</div>
+        <div class="cart-item-shop">${i.shop}</div>
+      </div>
+      <div class="cart-item-price">${i.price.toFixed(2)}€</div>
+      <button class="remove-btn" onclick="removeFromCart(${i.id})" aria-label="Remover"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+  `).join('') + `
+    <div class="cart-total">
+      <div class="total-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}€</span></div>
+      <div class="total-row" style="color:var(--green-dark)"><span>💚 Poupança</span><span>-${savings.toFixed(2)}€</span></div>
+      <div class="total-row final"><span>Total</span><span class="total-val">${subtotal.toFixed(2)}€</span></div>
+    </div>
+    <button class="pay-btn" onclick="checkout()"><i class="ti ti-credit-card" aria-hidden="true"></i>  Pagar com MB Way · ${subtotal.toFixed(2)}€</button>
+    <div style="text-align:center;font-size:12px;color:var(--muted)">🔒 Pagamento seguro via gateway externo · Dados encriptados</div>
+  `;
+}
+
+function checkout() {
+  if (!cart.length) return;
+  const code = 'RD-' + Math.floor(1000 + Math.random() * 9000) + '-' + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  document.getElementById('qr-code').textContent = code;
+  generateQR();
+  document.getElementById('qr-modal').classList.add('active');
+  updateImpact();
+}
+
+function generateQR() {
+  const container = document.getElementById('qr-container');
+  const pattern = [];
+  for (let i = 0; i < 64; i++) pattern.push(Math.random() > 0.5);
+  // corners always dark
+  [0,1,2,3,4,7,14,15,16,17,18,21,56,57,63].forEach(i => { if(i<64) pattern[i] = true; });
+  container.innerHTML = `<div class="qr-grid">${pattern.map(v => `<div class="qr-cell" style="background:${v ? 'var(--green-dark)' : 'transparent'}"></div>`).join('')}</div>`;
+}
+
+function resetCart() {
+  cart = [];
+  updateCartBadge();
+  renderCart();
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  const nb = document.getElementById('bnav-' + name);
+  if (nb) nb.classList.add('active');
+  if (name === 'cart') renderCart();
+  if (name === 'impact') {
+    setTimeout(() => document.getElementById('impact-notif').style.display = 'flex', 800);
+  }
+  window.scrollTo(0, 0);
+}
+
+function togglePref(el) {
+  el.classList.toggle('selected');
+}
+
+function savePrefs() {
+  showToast('Preferências guardadas ✓');
+  setTimeout(() => showScreen('home'), 600);
+}
+
+function updateImpact() {
+  const meals = 7 + cart.length;
+  document.getElementById('meals-count').textContent = meals;
+  const co2 = (2.4 + cart.length * 0.3).toFixed(1);
+  document.getElementById('co2-stat').textContent = co2 + ' kg';
+  const saved = (18.4 + cart.reduce((s,i) => s + (i.oldPrice - i.price), 0)).toFixed(2) + '€';
+  document.getElementById('money-saved').textContent = saved;
+}
+
+const history = [
+  {name:"Croissants & Brioches",shop:"Padaria Central",date:"23 maio 2026",price:"2.80€",status:"done",emoji:"🥐"},
+  {name:"Menu Almoço Completo",shop:"Tasca do Zé",date:"21 maio 2026",price:"4.20€",status:"done",emoji:"🍲"},
+  {name:"Sandes Variadas",shop:"Café Lisboa",date:"19 maio 2026",price:"3.00€",status:"done",emoji:"🥪"},
+];
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  el.innerHTML = '<p class="section-title" style="margin-bottom:12px">Histórico de reservas</p>' +
+    history.map(h => `
+      <div class="history-item">
+        <div class="history-icon">${h.emoji}</div>
+        <div class="history-info">
+          <div class="history-name">${h.name}</div>
+          <div class="history-date">${h.shop} · ${h.date}</div>
+        </div>
+        <div class="history-right">
+          <div class="history-price">${h.price}</div>
+          <div class="status-badge ${h.status}">${h.status === 'done' ? '✓ Levantado' : 'Pendente'}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+function showNotif() {
+  showToast('📍 Padaria Central está a 180m com 3 ofertas!');
+  const nb = document.getElementById('geofence-notif');
+  nb.innerHTML = `<div class="notif-banner"><i class="ti ti-map-pin notif-icon" aria-hidden="true"></i><div class="notif-text"><strong>Geofencing: perto de ti!</strong>Padaria Central (180m) tem 3 ofertas disponíveis</div><button class="notif-close" onclick="this.parentElement.parentElement.innerHTML=''">✕</button></div>`;
+  nb.style.display = 'block';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderOffers();
+renderHistory();
+</script>
+</body>
+</html>
